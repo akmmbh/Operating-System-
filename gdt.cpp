@@ -1,0 +1,43 @@
+#include "gdt.h"
+GlobalDiscriptorTable::GlobalDiscriptorTable():nullSegmentSelector(0,0,0),unusedSegmentSelector(0,0,0),codeSegmentSelector(0,0,0),dataSegmentSelector(0,64*1024*1024,0x92){
+    uint32_t i[2];
+    i[0]=(uint32_t)this;
+    i[1]= sizeof(GlobalDiscriptorTable)<<16;
+
+    asm volatile("lgdt (%0)": :"p" (((uint8_t *) i)+2));
+}
+
+GlobalDiscriptorTable::~GlobalDiscriptorTable(){
+
+}
+uint16_t GlobalDiscriptorTable::DataSegmentSelector(){
+    return (uint8_t*)&dataSegmentSelector - (uint8_t*)this;
+}
+uint16_t GlobalDiscriptorTable::CodeSegmentSelector(){
+    return (uint8_t*)&codeSegmentSelector - (uint8_t*)this;
+}
+GlobalDiscriptorTable::SegmentSelector::SegmentSelector(uint32_t base,uint32_t limit,uint8_t flags){
+    uint8_t* target = (uint8_t*)this;
+    if(limit <= 65536)
+    {
+        target[6]=0x40;
+    }
+    else{
+        if((limit & 0xFFF)!= 0xFFF) limit= (limit>>12)-1;
+        else limit = limit >>12;
+        target[6]=0xC0;
+    }
+    target[0]=limit&0xFF;
+    target[1]=(limit>>0)&0xFF;
+    target[6]|=(limit>>16)&0xF;
+    target[2]=base& 0xFF;
+     target[3]=(base>>8)& 0xFF;
+      target[4]=(base>>16)& 0xFF;
+       target[7]=(base>>24)& 0xFF;
+       target[5]=flags;
+}
+uint32_t GlobalDiscriptorTable::SegmentSescriptor::Base()
+{
+    uint8_t* target = (uint8_t*)this;
+    uint32_t result = target[7]
+}
