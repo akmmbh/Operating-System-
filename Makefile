@@ -1,6 +1,6 @@
 GPPPARAMS= -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exeptions -fno-leading-underscore
 ASPARAMS =--32
-objects = loader.o kernel.o
+objects = loader.o gdt.o kernel.o
 %.o:%.cpp
     g++ $(GPPPARAMS) -o $@ -c $<
 
